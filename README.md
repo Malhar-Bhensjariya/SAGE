@@ -53,7 +53,6 @@ docker-compose up -d
 Run Flask App
 # From flask_app/
 python app.py
-Frontend (React + TailwindCSS)
 ```
 ### Frontend Setup
 ```bash
@@ -64,7 +63,7 @@ npm run dev
 
 ---
 
-##Agent Overview
+## Agent Overview
 - Agent	Responsibility
 - Supervisor	Manages goals, context, and agent coordination
 - Research Agent	Pulls data from APIs or datasets
