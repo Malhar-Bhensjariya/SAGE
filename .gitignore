@@ -1,0 +1,27 @@
+node_modules
+venv
+.env
+
+# # Node.js
+# node_modules/
+# dist/
+# .env
+# .env.*
+
+# # Python
+# venv/
+# __pycache__/
+# *.py[cod]
+# *.sqlite3
+# *.log
+# *.egg-info/
+# instance/
+# *.db
+
+# # OS
+# .DS_Store
+# Thumbs.db
+
+# # IDE
+# .vscode/
+# .idea/

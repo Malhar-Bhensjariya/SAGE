@@ -21,11 +21,79 @@ Built entirely with free tools (Gemini 2.0 flash, PostgreSQL, Flask, React, etc.
 ```text
 sage/
 ├── backend/
-│ ├── flask_app/ # Flask API + Sub-agent logic + Memory handling
-│ └── postgres/ # PostgreSQL schema + Docker DB setup
-├── frontend/ # ReactJS + TailwindCSS user interface
-├── .env # Environment variables (Git-ignored)
+│   ├── flask_app/
+│   │   ├── agents/                          # Core AI agents
+│   │   │   ├── supervisor_agent.py
+│   │   │   ├── research_agent.py
+│   │   │   ├── summarizer_agent.py
+│   │   │   ├── critique_agent.py
+│   │   │   └── strategy_agent.py
+│   │   ├── core/
+│   │   │   ├── routes/
+│   │   │   │   ├── user_routes.py
+│   │   │   │   ├── task_routes.py
+│   │   │   │   └── document_routes.py
+│   │   │   ├── services/
+│   │   │   │   ├── agent_service.py
+│   │   │   │   ├── planning_service.py
+│   │   │   │   └── rag_service.py            # Logic for RAG + CAG
+│   │   │   └── utils/
+│   │   │       ├── memory.py
+│   │   │       ├── logger.py
+│   │   │       ├── file_parser.py            # PDF/DOC parsing
+│   │   │       └── text_splitter.py          # Chunking logic
+│   │   ├── db/
+│   │   │   ├── models.py
+│   │   │   └── db_init.py
+│   │   ├── data/
+│   │   │   ├── memory/                       # JSON or SQLite memory
+│   │   │   │   └── task_context.json
+│   │   │   └── uploaded/                     # Uploaded PDFs/DOCs
+│   │   ├── config/
+│   │   │   ├── settings.py
+│   │   │   └── secrets_template.env
+│   │   ├── tools/                            # External API connectors
+│   │   │   ├── gemini_connector.py
+│   │   │   └── serpapi_connector.py
+│   │   ├── app.py
+│   │   └── requirements.txt
+
+│   └── postgres/
+│       ├── init.sql
+│       └── docker-compose.yml
+
+├── frontend/
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── AgentCard.jsx
+│   │   │   ├── TaskTimeline.jsx
+│   │   │   └── UploadBox.jsx
+│   │   ├── pages/
+│   │   │   ├── Home.jsx
+│   │   │   ├── Agents.jsx
+│   │   │   ├── ExploreDoc.jsx                # For RAG/CAG UI
+│   │   │   └── Dashboard.jsx
+│   │   ├── hooks/
+│   │   │   └── useUploadTask.js
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   ├── taskService.js
+│   │   │   └── docService.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── vite.config.js
+│   └── package.json
+
+├── .env
+├── .gitignore
 └── README.md
+
 ```
 
 **Highlights:**
