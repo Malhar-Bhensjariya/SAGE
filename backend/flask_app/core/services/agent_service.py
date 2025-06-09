@@ -1,39 +1,91 @@
-# flask_app/core/services/agent_service.py
-
-from flask_app.agents.research_agent import ResearchAgent
-from flask_app.agents.summarizer_agent import SummarizerAgent
-from flask_app.agents.critique_agent import CritiqueAgent
-from flask_app.agents.strategy_agent import StrategyAgent
-from flask_app.agents.supervisor_agent import SupervisorAgent
-from flask_app.core.utils.logger import log_info, log_error
+from langchain.agents import AgentExecutor, Tool, initialize_agent
+from langchain.memory import ConversationBufferMemory
+from flask_app.tools import (
+    GeminiTool,
+    SerpTool,
+    DocumentQATool,
+    MemoryTool
+)
+from flask_app.core.utils.logger import log_info
+from flask_app.core.services.rag_service import RAGService
 
 class AgentService:
     def __init__(self, use_web_search=False):
-        self.research_agent = ResearchAgent(use_web_search=use_web_search)
-        self.summarizer_agent = SummarizerAgent()
-        self.critique_agent = CritiqueAgent()
-        self.strategy_agent = StrategyAgent()
-        self.supervisor_agent = SupervisorAgent()
+        self.tools = self._initialize_tools(use_web_search)
+        self.memory = ConversationBufferMemory(memory_key="chat_history")
+        log_info("AgentService initialized with LangChain tools")
 
-        log_info("AgentService initialized with all core agents.")
+    def _initialize_tools(self, use_web_search):
+        tools = [
+            Tool(
+                name="Gemini",
+                func=self._gemini_fallback,
+                description="General purpose AI assistant"
+            ),
+            DocumentQATool(),
+            MemoryTool()
+        ]
 
-    def perform_research(self, query, context=None):
-        log_info("Starting research...")
-        return self.research_agent.perform_research(query, context)
+        if use_web_search:
+            tools.append(SerpTool())
 
-    def summarize(self, content):
-        log_info("Starting summarization...")
-        return self.summarizer_agent.summarize(content)
+        return tools
 
-    def critique(self, content, goal, threshold=80):
-        log_info("Starting critique...")
-        return self.critique_agent.critique(content, goal, threshold)
+    def _gemini_fallback(self, prompt: str) -> str:
+        from flask_app.tools.gemini_connector import generate_response
+        return generate_response(prompt)
 
-    def strategize(self, content, goals):
-        log_info("Starting strategy formulation...")
-        return self.strategy_agent.formulate_strategy(content, goals)
+    def create_agent(self, agent_type: str, **kwargs):
+        agent_map = {
+            "research": self._create_research_agent,
+            "summarize": self._create_summarize_agent,
+            "critique": self._create_critique_agent,
+            "strategy": self._create_strategy_agent,
+            "supervisor": self._create_supervisor_agent
+        }
+        return agent_map[agent_type](**kwargs)
 
-    def supervise(self, task_id, data):
-        log_info(f"Supervisor agent managing task {task_id}")
-        return self.supervisor_agent.manage_task(task_id, data)
+    def _create_research_agent(self):
+        return initialize_agent(
+            tools=self.tools,
+            agent="zero-shot-react-description",
+            memory=self.memory,
+            verbose=True,
+            max_iterations=5
+        )
 
+    def _create_summarize_agent(self):
+        return initialize_agent(
+            tools=[t for t in self.tools if t.name in ["Gemini", "Memory"]],
+            agent="zero-shot-react-description",
+            memory=self.memory,
+            verbose=True,
+            max_iterations=3
+        )
+
+    def _create_critique_agent(self):
+        return initialize_agent(
+            tools=[t for t in self.tools if t.name == "Gemini"],
+            agent="zero-shot-react-description",
+            memory=self.memory,
+            verbose=False,
+            max_iterations=2
+        )
+
+    def _create_strategy_agent(self):
+        return initialize_agent(
+            tools=[t for t in self.tools if t.name in ["Gemini", "Memory", "DocumentQA"]],
+            agent="zero-shot-react-description",
+            memory=self.memory,
+            verbose=True,
+            max_iterations=4
+        )
+
+    def _create_supervisor_agent(self):
+        return initialize_agent(
+            tools=self.tools,
+            agent="zero-shot-react-description",
+            memory=self.memory,
+            verbose=False,
+            max_iterations=6
+        )

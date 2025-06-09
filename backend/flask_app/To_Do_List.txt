@@ -1,0 +1,82 @@
+✅ Completed Setup
+├── flask_app/
+│   │   ├── agents/                          # Core AI agents
+│   │   │   ├── supervisor_agent.py
+│   │   │   ├── research_agent.py
+│   │   │   ├── summarizer_agent.py
+│   │   │   ├── critique_agent.py
+│   │   │   └── strategy_agent.py
+│   │   ├── core/
+│   │   │   ├── routes/
+│   │   │   │   ├── user_routes.py
+│   │   │   │   ├── task_routes.py
+│   │   │   │   └── document_routes.py
+│   │   │   ├── services/
+│   │   │   │   ├── agent_service.py
+│   │   │   │   ├── planning_service.py
+│   │   │   │   └── rag_service.py            # Logic for RAG + CAG
+│   │   │   └── utils/
+│   │   │       ├── memory.py
+│   │   │       ├── logger.py
+│   │   │       ├── file_parser.py            # PDF/DOC parsing
+│   │   │       └── text_splitter.py          # Chunking logic
+│   │   ├── db/
+│   │   │   ├── models.py
+│   │   │   └── db_init.py
+│   │   ├── data/
+│   │   │   ├── memory/                       # JSON or SQLite memory
+│   │   │   │   └── task_context.json
+│   │   │   └── uploaded/                     # Uploaded PDFs/DOCs
+│   │   ├── config/
+│   │   │   ├── settings.py
+│   │   │   └── secrets_template.env
+│   │   ├── tools/                            # External API connectors
+│   │   │   ├── gemini_connector.py
+│   │   │   └── serpapi_connector.py
+│   │   │   ├── gemini_tool.py
+│   │   │   ├── serp_tool.py
+│   │   │   ├── document_qa_tool.py
+│   │   │   ├── memory_tool.py
+│   │   ├── app.py
+│   │   └── requirements.txt
+
+Agents Built:
+- ResearchAgent (uses SERPAPI + Gemini based on use_web_search flag)
+- SummarizerAgent (basic version, will be made case-aware)
+- CritiqueAgent (uses score+threshold logic, will be refined)
+- StrategyAgent (generates goals/next steps from results)
+- SupervisorAgent (master controller, needs LangGraph + conditional logic updates)
+
+🛠️ Next Up / In Progress
+- Refactoring & Feature Expansion
+- SupervisorAgent conditional logic:
+    1. Use SummarizerAgent and CritiqueAgent only when needed (not always).
+    2. Conditions to be implemented in Supervisor using flags or content type analysis.
+
+🧠 Upgrade to LangChain + LangGraph:
+- Refactor tools like gemini_connector.py, serpapi_connector.py into LangChain tools.  (Done)
+- Enable agent routing + memory using LangChain.
+- SupervisorAgent logic can be upgraded with LangGraph-style graph flows.
+- Multi-step planning → LangChain planner.
+
+🧰 New LangChain Tools (to replace or supplement):  (All Done)
+- GeminiTool (LangChain-compatible wrapper around Gemini API)
+- SerpTool (LangChain Tool using SERPAPI)
+- DocumentQA tool (for querying user-uploaded docs with RAG)
+- MemoryTool (LangChain memory integration for task context and long-term memory)
+- Remaining Modular Components to Build
+
+Component	            Status	             Notes
+🧠 agent_service.py	    Incomplete	       Will route to LangChain-based agents/tools
+🧩 LangChain Tools	    Done	           Replace Gemini + SERPAPI direct calls
+🧠 planning_service.py	Under Review	   Supports dynamic goal-based task flow
+📊 rag_service.py	    Done	           Uses vector DB or Gemini directly for now
+🧠 memory.py update	    Soon	           For storing context per task or globally
+
+🧠 Design Philosophy Going Forward
+- Use LangChain for agent logic, tool invocation, memory, and modularity.
+- Use LangGraph for orchestrating multi-agent workflows (later phase).
+- AI agents should act more like "agents" — using tools, memory, and decision logic.
+- Keep tools modular and individually testable (as done in CSV Editor).
+- Summarization & Critique only run when needed, not blindly.
+
